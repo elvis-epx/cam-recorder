@@ -1,0 +1,63 @@
+#!/bin/bash
+
+ideal_free=10 # % of filesystem
+
+video_size=600 # in seconds
+nr_cameras=10  # number of cameras
+
+shortest_rm_pause=1 
+# delete rate at least 4x of the video recording rate
+longest_rm_pause=$(($video_size / $nr_cameras / 4))
+
+remove_old_videos() {
+	target_free="$1"
+	rm_pause=$shortest_rm_pause
+	while true; do
+		total=$(($(stat -f --format="%b" .)))
+		free=$(($(stat -f --format="%a" .)))
+		freepct=$(( $free * 100 / $total ))
+		echo "Free ${freepct} target ${target_free}"
+
+		if [ "$freepct" -ge "$target_free" ]; then
+			break
+		fi
+
+		oldest=$(ls -c *.mp4 | tail -1)
+
+		if [ "$oldest" = "" ]; then
+			echo "Disk full for other reason than videos!"
+			# mail administrator
+			break
+		fi
+
+		echo "Removing $oldest"
+		prermfree=$free
+		rm -f $oldest
+		sleep $rm_pause
+		sync
+		free=$(($(stat -f --format="%a" .)))
+
+		if ! [ "$free" -gt "$prermfree" ]; then
+			echo "Free block count $free did not increase over $prermfree"
+			rm_pause=$(($rm_pause * 2))
+			if [ "$rm_pause" -gt "$longest_rm_pause" ]; then
+				rm_pause=$longest_rm_pause
+			fi
+		       	echo "Increasing pause between removals to $rm_pause"
+		fi
+	done
+}
+
+while true; do
+	total=$(($(stat -f --format="%b" .)))
+	free=$(($(stat -f --format="%a" .)))
+	freepct=$(( $free * 100 / $total ))
+	date
+	echo ${freepct}% free
+	if [ "$freepct" -lt "$ideal_free" ]; then
+		echo "Free space less than ${ideal_free}%"
+		remove_old_videos $(($ideal_free + 1))
+
+	fi
+	sleep 3600
+done

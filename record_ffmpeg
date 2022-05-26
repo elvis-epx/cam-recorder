@@ -1,0 +1,38 @@
+#!/bin/bash
+
+camera=camera1
+# URL standard Intelbras VIP cams
+url="rtsp://admin:password@192.168.0.18/cam/realmonitor?channel=1&subtype=0"
+segment=900
+
+trap "trap - SIGTERM && kill -- -$$" SIGINT SIGTERM EXIT
+
+while true; do
+	time=$(date +%Y%m%d_%H%M%S)
+	now=$(date +%s)
+	eta=$(($now + $segment))
+	movie="./${time}_${camera}.mp4"
+	echo "Recording $movie..."
+	ffmpeg -rtsp_transport tcp -t $segment \
+		-loglevel 16 \
+		-i "$url" \
+		-vcodec copy -an -y \
+		"$movie" &
+	PID="$!"
+	while [ -e /proc/$PID ]; do
+		sleep 1
+		now=$(date +%s)
+		remaining=$(($eta - $now))
+		if [ "$remaining" -lt -10 ]; then
+			echo "*** WARNING ffmpeg hung up"
+			kill -9 $PID
+			sleep 2
+		fi
+	done
+	now=$(date +%s)
+	remaining=$(($eta - $now))
+	if [ "$remaining" -gt 0 ]; then
+		echo "*** WARNING ffmpeg failed or quit early"
+		sleep 60
+	fi
+done
