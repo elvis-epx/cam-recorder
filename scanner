@@ -1,0 +1,22 @@
+#!/bin/bash -x
+
+while true; do
+    nrfiles=$(ls *.mp4 | wc -l)
+    if [ "$nrfiles" -lt 2 ]; then
+        sleep 10
+        continue
+    fi
+    oldest=$(ls *.mp4 | sort | head -1)
+    echo $oldest
+    if nice dvr-scan -i $oldest -m opencv -df 3 -t 0.25 -roi 0 100 1920 980 -o ${oldest}.avi; then
+        mkdir -p ok/
+        mkdir -p nok/
+        mv ${oldest}.avi ok/
+        rm ${oldest}
+    else
+        mkdir -p ok/
+        mkdir -p nok/
+        mv ${oldest} nok/
+        touch ok/${oldest}.nok
+    fi
+done
