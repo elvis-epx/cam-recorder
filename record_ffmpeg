@@ -3,7 +3,7 @@
 camera=camera1
 # URL standard Intelbras VIP cams
 url="rtsp://admin:password@192.168.0.18/cam/realmonitor?channel=1&subtype=0"
-segment=900
+segment=800
 
 trap "trap - SIGTERM && kill -- -$$" SIGINT SIGTERM EXIT
 
