@@ -8,11 +8,14 @@ while true; do
     fi
     oldest=$(ls *.mp4 | sort | head -1)
     echo $oldest
-    if nice dvr-scan -i $oldest -m opencv -df 3 -t 0.25 -roi 0 100 1920 980 -o ${oldest}.avi; then
+    if nice dvr-scan -i $oldest -m opencv -df 3 -t 0.4 -roi 0 100 1920 980 -o ${oldest}.avi; then
         mkdir -p ok/
         mkdir -p nok/
-        mv ${oldest}.avi ok/
-        rm ${oldest}
+        if [ -e ${oldest}.avi ]; then
+            mv ${oldest} ${oldest}.avi ok/
+        else
+            rm ${oldest}
+        fi
     else
         mkdir -p ok/
         mkdir -p nok/
