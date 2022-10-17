@@ -1,0 +1,7 @@
+#!/bin/bash
+
+echo > lista.txt
+for f in $(ls *.avi | sort); do
+    echo "file '$f'" >> lista.txt
+done
+ffmpeg -f concat -i lista.txt -c copy juntado.avi
