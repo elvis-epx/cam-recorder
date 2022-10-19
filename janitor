@@ -22,7 +22,7 @@ remove_old_videos() {
 			break
 		fi
 
-		oldest=$(ls -c *.mp4 | tail -1)
+		oldest=$(ls -c *.mkv | tail -1)
 
 		if [ "$oldest" = "" ]; then
 			echo "Disk full for other reason than videos!"
