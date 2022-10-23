@@ -8,7 +8,7 @@ while true; do
     fi
     oldest=$(ls *.mkv | sort | head -1)
     echo $oldest
-    if nice dvr-scan -i $oldest -m opencv -df 3 -t 0.3 -roi 0 100 1920 980 -tb 0.5s -tp 0.5s -o ${oldest}.avi; then
+    if nice dvr-scan -i $oldest -m opencv -df 3 -t 0.4 -roi 0 100 1920 980 -tb 0.5s -tp 0.5s -o ${oldest}.avi; then
         mkdir -p ok/
         mkdir -p raw/
         if [ -e ${oldest}.avi ]; then
