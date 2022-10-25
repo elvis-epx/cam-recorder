@@ -24,7 +24,7 @@ The scripts may look simple, they indeed are simple, but they already accumulate
 many hours of testing and debugging until they would work unattended for many days
 in a row.
 
-## `record\_ffmpeg`
+## `record_ffmpeg`
 
 This script records a RTSP stream in fixed time segments using ffmpeg. It
 handles many failure modes e.g. ffmpeg hangs.
